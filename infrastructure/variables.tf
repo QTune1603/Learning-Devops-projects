@@ -27,3 +27,9 @@ variable "private_subnets" {
   type        = list(string)
   default     = ["192.168.3.0/24", "192.168.4.0/24"]
 }
+
+variable "availability_zones" {
+  description = "Availability Zones list for subnet"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
+}
