@@ -1,20 +1,19 @@
 # VPC module implementation goes here
 # 1. Init VPC
 resource "aws_vpc" "main" {
-    cird_block = var.vpc_cidr
+    cidr_block = var.vpc_cidr
     enable_dns_hostnames = true
     enable_dns_support = true
 
-    tags {
+    tags = {
         Name = "${var.environment}-vpc"
         Environment = var.environment
     }
 }
 
 # 2. Create Internet Gateway 
-resource "aws_internet_gateway"
-"main" {
-    vpc_id = aws_vpc.main.vpc_id
+resource "aws_internet_gateway" "main" {
+    vpc_id = aws_vpc.main.id
 
     tags = {
         Name = "${var.environment}-igw"
@@ -25,22 +24,22 @@ resource "aws_internet_gateway"
 # 3. Create Public Subnets(For Load Balancer / Nginx Frontend)
 resource "aws_subnet" "public" {
     count = length(var.public_subnets)
-    vpc_id = aws_vpc.main.vpc_id
-    cird_block = var.public_subnets[count.index]
+    vpc_id = aws_vpc.main.id
+    cidr_block = var.public_subnets[count.index]
     availability_zone = var.azs[count.index]
     map_public_ip_on_launch = true # Auto assign public IP for resource in this subnet
 
     tags = {
         Name = "${var.environment}-public-subnet-${count.index + 1}"
-        Environment = var.Environment
+        Environment = var.environment
     }
 }
 
 # 4. Create Private Subnets (For App Server / Database)
 resource "aws_subnet" "private" {
     count = length(var.private_subnets)
-    vpc_id = aws_vpc.main.vpc_id
-    cird_block = var.private_subnets[count.index]
+    vpc_id = aws_vpc.main.id
+    cidr_block = var.private_subnets[count.index]
     availability_zone = var.azs[count.index]
 
     tags = {
@@ -62,7 +61,7 @@ resource "aws_eip" "nat" {
 # 6. Create NAT Gateway(Support servers in Private Subnet download application/connect internet outbound)
 resource "aws_nat_gateway" "main" {
     allocation_id = aws_eip.nat.id 
-    subnet_id = aws.subnet.public[0].id  # Set NAT Gateway in the first public subnet
+    subnet_id = aws_subnet.public[0].id  # Set NAT Gateway in the first public subnet
 
     tags = {
         Name = "${var.environment}-nat"
@@ -78,7 +77,7 @@ resource "aws_route_table" "public" {
     vpc_id =aws_vpc.main.id
     # Route all public traffic outbound Internet(0.0.0.0/0) through Internet Gateway(IGW)
     route {
-        cird_block = "0.0.0.0/0"
+        cidr_block = "0.0.0.0/0"
         gateway_id = aws_internet_gateway.main.id
         } 
 
@@ -89,20 +88,18 @@ resource "aws_route_table" "public" {
 }
 
 # 8. Route table for Private Subnets
-resource "aws_route_table"{
-    "private" {
-        vpc_id = aws_vpc.main.id
+resource "aws_route_table" "private" {
+    vpc_id = aws_vpc.main.id
 
-        # Route all traffic to Internet through NAT Gateway(for download  package, update security,...)
-        route {
-            cird_block = "0.0.0.0/0"
-            nat_gateway_id = aws_nat_gateway.main.id
-        }
+    # Route all traffic to Internet through NAT Gateway(for download  package, update security,...)
+    route {
+        cidr_block = "0.0.0.0/0"
+        nat_gateway_id = aws_nat_gateway.main.id
+    }
 
-        tags = {
-            Name = "${var.environment}-private-rt"
-            Environment = var.environment
-        }
+    tags = {
+        Name = "${var.environment}-private-rt"
+        Environment = var.environment
     }
 }
 
