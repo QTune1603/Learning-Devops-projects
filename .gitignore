@@ -1,0 +1,33 @@
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+# Local credential files (Never commit these!)
+*credentials*
+secrets.tfvars
+*.pem
+*.ppk
+*.key
+*.pub
+
+# --- Java & Maven ---
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+.mvn/wrapper/maven-wrapper.properties
+
+# --- IDEs & Editors ---
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db
