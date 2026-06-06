@@ -33,6 +33,33 @@ jobs:
     - name: Build and Package with Maven
       run: cd Java-Login-App && ./mvnw clean package
 
+    # Optional Step 4a: Run SonarCloud Static Code Analysis
+    # To enable this, configure the repository secrets:
+    # - SONAR_TOKEN
+    # - SONAR_PROJECT_KEY
+    # - SONAR_ORGANIZATION
+    - name: Run SonarCloud Static Code Analysis
+      if: ${{ secrets.SONAR_TOKEN != '' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        cd Java-Login-App
+        ./mvnw sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} -Dsonar.host.url=https://sonarcloud.io
+
+    # Optional Step 4b: Deploy package to JFrog Artifactory
+    # To enable this, configure the repository secrets:
+    # - JFROG_USERNAME
+    # - JFROG_PASSWORD
+    - name: Deploy to JFrog Artifactory
+      if: ${{ secrets.JFROG_USERNAME != '' && secrets.JFROG_PASSWORD != '' }}
+      env:
+        JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
+        JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+      run: |
+        cd Java-Login-App
+        ./mvnw clean deploy -s settings.xml -DskipTests
+
     # Step 5: Package and upload the .war file to GitHub's Artifact storage
     - name: Upload Build Artifact (.war)
       uses: actions/upload-artifact@v4

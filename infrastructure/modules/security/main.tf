@@ -43,11 +43,11 @@ resource "aws_security_group" "tomcat" {
   description = "Security group for Tomcat App Servers"
   vpc_id      = var.vpc_id
 
-  # ONLY allow access to port 8080 from resources belonging to ALB Security Group
+  # ONLY allow access to port 80 from resources belonging to ALB Security Group (Nginx receives this traffic)
   ingress {
     description     = "Allow HTTP from ALB"
-    from_port       = 8080
-    to_port         = 8080
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }

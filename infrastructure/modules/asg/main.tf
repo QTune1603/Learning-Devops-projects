@@ -30,9 +30,61 @@ resource "aws_launch_template" "main" {
               echo "DB_USER=${var.db_user}" >> /etc/tomcat/tomcat.conf
               echo "DB_PASSWORD=${var.db_password}" >> /etc/tomcat/tomcat.conf
 
-              # Start Tomcat service
+              # Install Nginx
+              amazon-linux-extras install -y nginx1 || yum install -y nginx
+
+              # Configure Nginx as a Reverse Proxy pointing to Tomcat on localhost:8080
+              cat << 'NGINXEOF' > /etc/nginx/nginx.conf
+              user nginx;
+              worker_processes auto;
+              error_log /var/log/nginx/error.log;
+              pid /run/nginx.pid;
+
+              include /usr/share/nginx/modules/*.conf;
+
+              events {
+                  worker_connections 1024;
+              }
+
+              http {
+                  log_format  main  '$$remote_addr - $$remote_user [$$time_local] "$$request" '
+                                    '$$status $$body_bytes_sent "$$http_referer" '
+                                    '"$$http_user_agent" "$$http_x_forwarded_for"';
+
+                  access_log  /var/log/nginx/access.log  main;
+
+                  sendfile            on;
+                  tcp_nopush          on;
+                  tcp_nodelay         on;
+                  keepalive_timeout   65;
+                  types_hash_max_size 4096;
+
+                  include             /etc/nginx/mime.types;
+                  default_type        application/octet-stream;
+
+                  include /etc/nginx/conf.d/*.conf;
+
+                  server {
+                      listen       80 default_server;
+                      listen       [::]:80 default_server;
+                      server_name  _;
+
+                      location / {
+                          proxy_pass http://127.0.0.1:8080;
+                          proxy_set_header Host $$host;
+                          proxy_set_header X-Real-IP $$remote_addr;
+                          proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+                          proxy_set_header X-Forwarded-Proto $$scheme;
+                      }
+                  }
+              }
+              NGINXEOF
+
+              # Start services
               systemctl enable tomcat
               systemctl start tomcat
+              systemctl enable nginx
+              systemctl start nginx
               EOF
   )
 

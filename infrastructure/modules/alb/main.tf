@@ -17,7 +17,7 @@ resource "aws_lb" "main" {
 # 2. Create Target Group (Group of targets for ALB to forward traffic to EC2 Tomcat cluster)
 resource "aws_lb_target_group" "main" {
   name        = "${var.environment}-tg"
-  port        = 8080                              # Tomcat servers run the application on port 8080
+  port        = 80                                # ALB routes traffic to Nginx on port 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"                        # Route traffic to EC2 Instances
