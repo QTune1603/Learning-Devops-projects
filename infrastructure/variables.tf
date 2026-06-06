@@ -45,3 +45,9 @@ variable "db_password" {
   type = string
   sensitive = true # Mark as sensitive, hide from output
 }
+
+variable "instance_type" {
+  description = "EC2 instance type to use"
+  type = string
+  default = "t2.micro" # default free tier
+}

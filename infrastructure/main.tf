@@ -48,3 +48,15 @@ module "alb" {
   public_subnet_ids = module.vpc.public_subnet_ids # Put ALB into Public Subnets
   alb_security_group_id = module.security.alb_security_group_id # # Get ALB Security group from module security
 }
+
+# 5. Call Module ASG to manage EC2 server cluster running Tomcat
+module "asg" {
+  source                   = "./modules/asg"
+  environment              = var.environment
+  vpc_id                   = module.vpc.vpc_id
+  private_subnet_ids       = module.vpc.private_subnet_ids       # Run EC2 servers in private subnets
+  tomcat_security_group_id = module.security.tomcat_security_group_id # Get Security group for Tomcat
+  target_group_arn         = module.alb.target_group_arn         # Register EC2 with ALB Target Group
+  instance_type            = var.instance_type
+}
+
