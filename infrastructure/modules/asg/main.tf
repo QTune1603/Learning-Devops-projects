@@ -4,10 +4,15 @@ resource "aws_launch_template" "main" {
   image_id      = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI in us-east-1 region (North Virginia)
   instance_type = var.instance_type
 
+  # Attach IAM Instance Profile to allow reading from S3
+  iam_instance_profile {
+    name = aws_iam_instance_profile.tomcat_profile.name
+  }
+
   # Assign Tomcat Security Group (only allow traffic from ALB)
   vpc_security_group_ids = [var.tomcat_security_group_id]
 
-    # Script Bash auto exec when EC2 starts (Bootstrap Script)
+  # Script Bash auto exec when EC2 starts (Bootstrap Script)
   user_data = base64encode(<<-EOF
               #!/bin/bash
               yum update -y
@@ -15,6 +20,10 @@ resource "aws_launch_template" "main" {
               yum install -y java-11-amazon-corretto
               # Install Apache Tomcat
               yum install -y tomcat
+
+              # Download the application artifact from S3 bucket and deploy it as ROOT.war
+              aws s3 cp s3://${var.s3_bucket_name}/dptweb-1.0.war /usr/share/tomcat/webapps/ROOT.war
+              chown tomcat:tomcat /usr/share/tomcat/webapps/ROOT.war
 
               # Insert database connection variables into Tomcat system configuration file
               echo "DB_HOST=${var.db_host}" >> /etc/tomcat/tomcat.conf

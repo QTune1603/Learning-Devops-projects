@@ -44,3 +44,14 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "s3_bucket_name" {
+  description = "S3 bucket name where built artifacts are stored"
+  type        = string
+}
+
+variable "s3_bucket_arn" {
+  description = "S3 bucket ARN where built artifacts are stored"
+  type        = string
+}
+
+

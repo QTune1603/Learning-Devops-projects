@@ -63,5 +63,16 @@ module "asg" {
   db_host                  = module.rds.db_hostname  # Get actual hostname of database created from Module RDS
   db_user                  = var.db_username
   db_password              = var.db_password
+
+  # Pass S3 Bucket info for artifact deployment
+  s3_bucket_name           = module.s3.bucket_name
+  s3_bucket_arn            = module.s3.bucket_arn
 }
+
+# 6. Call Module S3 to create application deployment artifact bucket
+module "s3" {
+  source      = "./modules/s3"
+  environment = var.environment
+}
+
 
