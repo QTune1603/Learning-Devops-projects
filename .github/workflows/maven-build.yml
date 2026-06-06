@@ -15,11 +15,11 @@ jobs:
     steps:
     # Step 1: Checkout code from repository to VM
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # Step 2: Configure Java JDK 17 and enable caching to speed up Maven dependency downloads
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -35,7 +35,7 @@ jobs:
 
     # Step 5: Package and upload the .war file to GitHub's Artifact storage
     - name: Upload Build Artifact (.war)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dptweb-application
         path: Java-Login-App/target/*.war
