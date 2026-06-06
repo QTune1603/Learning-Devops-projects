@@ -86,13 +86,18 @@ Here is a conceptual view of the architecture:
 Learning-Devops-projects/
 ├── .gitignore
 ├── README.md               # Main documentation (this file)
+├── .github/
+│   └── workflows/
+│       └── maven-build.yml # GitHub Actions CI/CD Pipeline configuration
+├── docs/
+│   └── infrastructure_flow_guide.md  # Detailed architectural flow guide
 ├── Java-Login-App/         # Java application codebase
 │   └── README.md           # Application & Database setup documentation
 └── infrastructure/         # Terraform templates
     ├── README.md           # Infrastructure provisioning documentation
     ├── main.tf
     ├── variables.tf
-    └── modules/            # Reusable Terraform modules (vpc, security, etc.)
+    └── modules/            # Reusable modules (vpc, security, alb, asg, rds, s3)
 ```
 
 ---
@@ -103,8 +108,3 @@ Learning-Devops-projects/
 2. Go to the [Java-Login-App/](file:///e:/DevOps-projects/Learning-Devops-projects/Java-Login-App/README.md) directory to explore the application and set up the MySQL database schema.
 
 ---
-
-## References & Attribution
-This project is cloned and adapted for educational purposes from the original repository:
-- **Original Repository:** [NotHarshhaa/DevOps-Projects](https://github.com/NotHarshhaa/DevOps-Projects)
-- **Project Folder:** [DevOps-Project-01](https://github.com/NotHarshhaa/DevOps-Projects/tree/master/DevOps-Project-01)

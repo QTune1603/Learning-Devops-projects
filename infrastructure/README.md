@@ -10,17 +10,26 @@ The resources provisioned by these Terraform templates include:
 
 1. **VPC & Networking** (`modules/vpc`):
    - A primary VPC (e.g., CIDR `192.168.0.0/16`).
-   - Public subnets for Application Load Balancers (ALBs) and Bastion hosts.
-   - Private subnets for Tomcat Application Servers and RDS Database instances.
-   - Internet Gateway (IGW) for public routing, and NAT Gateway for private instances to access the internet securely.
+   - Public subnets for the Application Load Balancer (ALB) and private subnets for application and database layers.
+   - Internet Gateway (IGW) for public entry, and NAT Gateway for secure outbound internet traffic from private subnets.
 
 2. **Security Groups** (`modules/security`):
-   - Strict firewall rules allowing public traffic only to the frontend Load Balancers.
-   - Internal traffic routing allowing Tomcat servers to communicate with the DB and ElastiCache tiers.
-   - Bastion host security groups for secure administration access (SSH).
+   - Firewalls controlling access: ALB (allows public port 80/443) -> Tomcat/Nginx instances (allows traffic from ALB on port 80) -> RDS MySQL (allows traffic from Tomcat on port 3306).
 
-3. **Data Layer**:
-   - RDS MySQL Database deployed across multiple Availability Zones (Multi-AZ) for automatic failover.
+3. **Application Load Balancer** (`modules/alb`):
+   - Public-facing ALB listening on port 80 and forwarding traffic to Nginx reverse proxy running on Tomcat servers.
+
+4. **Compute & Auto Scaling** (`modules/asg`):
+   - EC2 Launch Templates configuring Tomcat 9 and Java 11.
+   - Nginx installed and configured as a reverse proxy (port 80 -> port 8080).
+   - IAM Instance Profile allowing Tomcat instances to pull deployment artifacts from S3.
+   - Auto Scaling Group to dynamically scale instance count between 1 and 3.
+
+5. **Data Layer** (`modules/rds`):
+   - Amazon RDS MySQL Instance deployed across multiple Availability Zones (Multi-AZ) for automatic failover.
+
+6. **Artifact Storage** (`modules/s3`):
+   - Private, versioned, and encrypted S3 bucket to securely host application `.war` build artifacts.
 
 ---
 
@@ -33,13 +42,11 @@ infrastructure/
 ├── README.md           # Infrastructure documentation (this file)
 └── modules/
     ├── vpc/            # VPC and networking components
-    │   ├── main.tf
-    │   ├── variables.tf
-    │   └── outputs.tf
-    └── security/       # Security groups and rules
-        ├── main.tf
-        ├── variables.tf
-        └── outputs.tf
+    ├── security/       # Security groups and rules
+    ├── alb/            # Application Load Balancer (ALB)
+    ├── asg/            # Auto Scaling Group (ASG) & Nginx configuration
+    ├── rds/            # RDS MySQL Database
+    └── s3/             # S3 bucket for artifacts
 ```
 
 ---
