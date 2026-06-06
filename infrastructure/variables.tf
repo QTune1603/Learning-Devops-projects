@@ -33,3 +33,15 @@ variable "availability_zones" {
   type        = list(string)
   default     = ["us-east-1a", "us-east-1b"]
 }
+
+variable "db_username" {
+  description = "Name of database admin user"
+  type = string
+  default = "admin"
+}
+
+variable "db_password" {
+  description = "Password for database admin user"
+  type = string
+  sensitive = true # Mark as sensitive, hide from output
+}
