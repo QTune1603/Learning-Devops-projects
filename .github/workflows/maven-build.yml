@@ -1,0 +1,41 @@
+name: Java CI/CD Pipeline with Maven
+
+# Define trigger event: automatically run when push or pull request to main branch
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    # Run the pipeline on a clean Ubuntu VM provided by GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout code from repository to VM
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Configure Java JDK 17 and enable caching to speed up Maven dependency downloads
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    # Step 3: Grant execute permission for mvnw (since the original file was created on Windows)
+    - name: Grant execute permission for mvnw
+      run: chmod +x Java-Login-App/mvnw
+
+    # Step 4: Build and package the .war file in the Java-Login-App directory
+    - name: Build and Package with Maven
+      run: cd Java-Login-App && ./mvnw clean package
+
+    # Step 5: Package and upload the .war file to GitHub's Artifact storage
+    - name: Upload Build Artifact (.war)
+      uses: actions/upload-artifact@v3
+      with:
+        name: dptweb-application
+        path: Java-Login-App/target/*.war
