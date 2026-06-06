@@ -58,5 +58,10 @@ module "asg" {
   tomcat_security_group_id = module.security.tomcat_security_group_id # Get Security group for Tomcat
   target_group_arn         = module.alb.target_group_arn         # Register EC2 with ALB Target Group
   instance_type            = var.instance_type
+
+  # Pass DB connection information to EC2 servers
+  db_host                  = module.rds.db_hostname  # Get actual hostname of database created from Module RDS
+  db_user                  = var.db_username
+  db_password              = var.db_password
 }
 

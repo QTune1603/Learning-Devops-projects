@@ -7,18 +7,26 @@ resource "aws_launch_template" "main" {
   # Assign Tomcat Security Group (only allow traffic from ALB)
   vpc_security_group_ids = [var.tomcat_security_group_id]
 
-  # Script Bash automatically executed when EC2 starts (Bootstrap Script)
+    # Script Bash auto exec when EC2 starts (Bootstrap Script)
   user_data = base64encode(<<-EOF
               #!/bin/bash
               yum update -y
               # Install Java 11 (Amazon Corretto)
               yum install -y java-11-amazon-corretto
-              # Install and start Apache Tomcat
+              # Install Apache Tomcat
               yum install -y tomcat
+
+              # Insert database connection variables into Tomcat system configuration file
+              echo "DB_HOST=${var.db_host}" >> /etc/tomcat/tomcat.conf
+              echo "DB_USER=${var.db_user}" >> /etc/tomcat/tomcat.conf
+              echo "DB_PASSWORD=${var.db_password}" >> /etc/tomcat/tomcat.conf
+
+              # Start Tomcat service
               systemctl enable tomcat
               systemctl start tomcat
               EOF
   )
+
 
   # Automatically assign labels (Tags) to EC2 servers created
   tag_specifications {

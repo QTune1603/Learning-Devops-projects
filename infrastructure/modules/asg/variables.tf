@@ -27,3 +27,20 @@ variable "instance_type" {
   description = "EC2 instance type to run applications"
   type        = string
 }
+
+variable "db_host" {
+  description = "Hostname address connect to database"
+  type        = string
+}
+
+variable "db_user" {
+  description = "Username address connect to database"
+  type        = string
+}
+
+variable "db_password" {
+  description = "Password address connect to database"
+  type        = string
+  sensitive   = true
+}
+
