@@ -1,7 +1,23 @@
+# Data source to dynamically get the latest Amazon Linux 2 AMI in the active region
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
 # 1. Initialize Launch Template (Template configuration to automatically create EC2 servers)
 resource "aws_launch_template" "main" {
   name_prefix   = "${var.environment}-lt-"
-  image_id      = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI in us-east-1 region (North Virginia)
+  image_id      = data.aws_ami.amazon_linux_2.id # Dynamically uses the latest Amazon Linux 2 AMI for the active region
   instance_type = var.instance_type
 
   # Attach IAM Instance Profile to allow reading from S3
