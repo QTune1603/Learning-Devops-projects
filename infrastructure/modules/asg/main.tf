@@ -32,8 +32,8 @@ resource "aws_launch_template" "main" {
   user_data = base64encode(<<-EOF
               #!/bin/bash
               yum update -y
-              # Install Java 11 (Amazon Corretto)
-              yum install -y java-11-amazon-corretto
+              # Install Java 17 (Amazon Corretto) to match the compile version in GitHub Actions
+              yum install -y java-17-amazon-corretto
               # Install Apache Tomcat
               yum install -y tomcat
 
