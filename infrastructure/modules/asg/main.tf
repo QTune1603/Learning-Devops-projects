@@ -32,24 +32,40 @@ resource "aws_launch_template" "main" {
   user_data = base64encode(<<-EOF
               #!/bin/bash
               yum update -y
-              # Install Java 17 (Amazon Corretto) to match the compile version in GitHub Actions
+              # Install Java 17 (Amazon Corretto)
               yum install -y java-17-amazon-corretto
-              # Install Apache Tomcat
-              yum install -y tomcat
 
-              # Download the application artifact from S3 bucket and deploy it as ROOT.war
-              aws s3 cp s3://${var.s3_bucket_name}/dptweb-1.0.war /usr/share/tomcat/webapps/ROOT.war
-              chown tomcat:tomcat /usr/share/tomcat/webapps/ROOT.war
+              # Create application directory
+              mkdir -p /opt/app
 
-              # Insert database connection variables into Tomcat system configuration file
-              echo "DB_HOST=${var.db_host}" >> /etc/tomcat/tomcat.conf
-              echo "DB_USER=${var.db_user}" >> /etc/tomcat/tomcat.conf
-              echo "DB_PASSWORD=${var.db_password}" >> /etc/tomcat/tomcat.conf
+              # Download the application artifact from S3 bucket
+              aws s3 cp s3://${var.s3_bucket_name}/dptweb-1.0.war /opt/app/dptweb-1.0.war
+              chmod 500 /opt/app/dptweb-1.0.war
+
+              # Create a systemd service to run the Spring Boot application (uses embedded Tomcat 9)
+              cat << 'JVMEF' > /etc/systemd/system/java-app.service
+              [Unit]
+              Description=Java Login Web Application
+              After=syslog.target network.target
+
+              [Service]
+              User=root
+              ExecStart=/usr/bin/java -jar /opt/app/dptweb-1.0.war
+              SuccessExitStatus=143
+              Restart=always
+              RestartSec=10
+              Environment=DB_HOST=${var.db_host}
+              Environment=DB_USER=${var.db_user}
+              Environment=DB_PASSWORD=${var.db_password}
+
+              [Install]
+              WantedBy=multi-user.target
+              JVMEF
 
               # Install Nginx
               amazon-linux-extras install -y nginx1 || yum install -y nginx
 
-              # Configure Nginx as a Reverse Proxy pointing to Tomcat on localhost:8080
+              # Configure Nginx as a Reverse Proxy pointing to local Spring Boot on port 8080
               cat << 'NGINXEOF' > /etc/nginx/nginx.conf
               user nginx;
               worker_processes auto;
@@ -100,8 +116,9 @@ resource "aws_launch_template" "main" {
               setsebool -P httpd_can_network_connect 1 || true
 
               # Start services
-              systemctl enable tomcat
-              systemctl start tomcat
+              systemctl daemon-reload
+              systemctl enable java-app
+              systemctl start java-app
               systemctl enable nginx
               systemctl start nginx
               EOF
