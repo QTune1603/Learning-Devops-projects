@@ -32,7 +32,7 @@ resource "aws_lb_target_group" "main" {
     timeout             = 5                       # Maximum response wait time is 5 seconds
     healthy_threshold   = 3                       # 3 consecutive successful checks -> server is healthy
     unhealthy_threshold = 3                       # 3 consecutive failed checks -> server is faulty and ALB will stop sending requests to it
-    matcher             = "200,302"               # Accept both 200 OK and 302 Redirect (for login redirect)
+    matcher             = "200,302,401"           # Accept 200 OK, 302 Redirect, and 401 Unauthorized (for protected endpoints)
   }
 
   tags = {
