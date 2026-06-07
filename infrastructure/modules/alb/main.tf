@@ -26,12 +26,13 @@ resource "aws_lb_target_group" "main" {
   health_check {
     enabled             = true
     path                = "/"                     # Path used to send request to check health
-    port                = "traffic-port"          # Use port 8080 above
+    port                = "traffic-port"          # Use port 80 above (port 80)
     protocol            = "HTTP"
     interval            = 30                      # Check every 30 seconds
     timeout             = 5                       # Maximum response wait time is 5 seconds
     healthy_threshold   = 3                       # 3 consecutive successful checks -> server is healthy
     unhealthy_threshold = 3                       # 3 consecutive failed checks -> server is faulty and ALB will stop sending requests to it
+    matcher             = "200,302"               # Accept both 200 OK and 302 Redirect (for login redirect)
   }
 
   tags = {

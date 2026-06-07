@@ -96,6 +96,9 @@ resource "aws_launch_template" "main" {
               }
               NGINXEOF
 
+              # Allow Nginx to connect to network ports (SELinux rule)
+              setsebool -P httpd_can_network_connect 1 || true
+
               # Start services
               systemctl enable tomcat
               systemctl start tomcat
