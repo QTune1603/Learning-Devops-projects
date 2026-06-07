@@ -16,8 +16,8 @@ resource "aws_lb" "main" {
 
 # 2. Create Target Group (Group of targets for ALB to forward traffic to EC2 Tomcat cluster)
 resource "aws_lb_target_group" "main" {
-  name        = "${var.environment}-tg"
-  port        = 80                                # ALB routes traffic to Nginx on port 80
+  name        = "${var.environment}-tg-8080"
+  port        = 8080                              # ALB routes traffic to Tomcat on port 8080
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"                        # Route traffic to EC2 Instances
@@ -26,7 +26,7 @@ resource "aws_lb_target_group" "main" {
   health_check {
     enabled             = true
     path                = "/"                     # Path used to send request to check health
-    port                = "traffic-port"          # Use port 80 above (port 80)
+    port                = "traffic-port"          # Use port 8080
     protocol            = "HTTP"
     interval            = 30                      # Check every 30 seconds
     timeout             = 5                       # Maximum response wait time is 5 seconds

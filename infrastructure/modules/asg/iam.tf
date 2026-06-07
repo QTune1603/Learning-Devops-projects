@@ -53,6 +53,12 @@ resource "aws_iam_role_policy_attachment" "tomcat_s3_attachment" {
   policy_arn = aws_iam_policy.s3_read_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "tomcat_ssm" {
+  role       = aws_iam_role.tomcat_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+
 # 4. Create IAM Instance Profile for EC2 Launch Template to reference
 resource "aws_iam_instance_profile" "tomcat_profile" {
   name_prefix = "${var.environment}-tomcat-profile-"
