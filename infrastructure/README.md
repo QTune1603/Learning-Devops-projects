@@ -88,8 +88,12 @@ Run the apply command to build the AWS infrastructure. This might take 10-15 min
 terraform apply
 ```
 
-### Step 5: Clean Up Resources
-When you are done studying, do not forget to destroy the resources to avoid incurring unexpected AWS costs:
+### Step 5: Clean Up Resources (CRITICAL)
+
+> [!IMPORTANT]
+> Because this project implements an **Auto Scaling Group (ASG)**, simply stopping or terminating the EC2 instances in the AWS console will NOT clean them up. The ASG will detect they are missing and launch new instances, continuing to consume resources.
+> 
+> To permanently tear down the infrastructure and avoid any unexpected AWS costs, **always run the destroy command**:
 ```bash
-terraform destroy
+terraform destroy -auto-approve
 ```

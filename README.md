@@ -83,7 +83,7 @@ Here is a conceptual view of the architecture:
 ## Directory Structure
 
 ```
-Learning-Devops-projects/
+Terraform-AWS-3tier-architecture/
 ├── .gitignore
 ├── README.md               # Main documentation (this file)
 ├── .github/
@@ -102,9 +102,25 @@ Learning-Devops-projects/
 
 ---
 
+## ⚠️ Cost Control & Resource Cleanup (CRITICAL)
+
+Because this infrastructure uses an **Auto Scaling Group (ASG)**, manually stopping or terminating EC2 instances via the AWS console will trigger ASG's health monitoring to automatically launch replacement instances. 
+
+To permanently delete all resources and avoid unexpected AWS charges, **always run the destroy command from the `infrastructure/` folder** when you are done with your testing:
+
+```bash
+# Navigate to the infrastructure folder
+cd infrastructure
+
+# Destroy all resources provisioned by Terraform (VPC, ALB, ASG, RDS, etc.)
+terraform destroy -auto-approve
+```
+
+---
+
 ## Next Steps
 
-1. Go to the [infrastructure/](file:///e:/DevOps-projects/Learning-Devops-projects/infrastructure/README.md) directory to set up the AWS infrastructure.
-2. Go to the [Java-Login-App/](file:///e:/DevOps-projects/Learning-Devops-projects/Java-Login-App/README.md) directory to explore the application and set up the MySQL database schema.
+1. Go to the [infrastructure/](file:///E:/DevOps-projects/Terraform-AWS-3tier-architecture/infrastructure/README.md) directory to set up the AWS infrastructure.
+2. Go to the [Java-Login-App/](file:///E:/DevOps-projects/Terraform-AWS-3tier-architecture/Java-Login-App/README.md) directory to explore the application and set up the MySQL database schema.
 
 ---
